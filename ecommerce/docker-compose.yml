@@ -1,0 +1,54 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:13
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    ports:
+      - "8000"
+    depends_on:
+      - db
+    deploy:
+      replicas: 3  # Настроим 3 реплики для веб-приложения
+      restart_policy:
+        condition: on-failure
+    expose:
+      - "8000"
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: nginx_eccomerce
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+      - redis
+
+  redis:
+    image: redis:alpine
+    container_name: e-commerce-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
