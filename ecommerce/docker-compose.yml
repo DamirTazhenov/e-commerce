@@ -6,9 +6,9 @@ services:
     env_file:
       - .env
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB_STAGE}
+      POSTGRES_USER: ${POSTGRES_USER_STAGE}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_STAGE}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -49,6 +49,22 @@ services:
     container_name: e-commerce-redis
     ports:
       - "6379:6379"
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A config worker -l info -Q default -n default
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - web
+      - redis
+    deploy:
+      restart_policy:
+        condition: on-failure
 
 volumes:
   postgres_data:
