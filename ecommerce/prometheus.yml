@@ -1,0 +1,16 @@
+global:
+  scrape_interval: 15s  # Scrape targets every 15 seconds
+
+scrape_configs:
+  - job_name: 'django-app'
+    metrics_path: '/metrics'  # Django Prometheus endpoint
+    static_configs:
+      - targets: ['nginx:80']  # Use the Nginx service and port 80
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+
+  - job_name: 'celery'
+    static_configs:
+      - targets: [ 'celery-exporter:5555' ]

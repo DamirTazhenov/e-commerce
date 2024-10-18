@@ -14,6 +14,7 @@ from products.models import Product
 class OrderPagination(PageNumberPagination):
     page_size = 2
 
+
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.select_related('user').prefetch_related('items__product').all()
     serializer_class = OrderSerializer
@@ -38,7 +39,6 @@ class OrderViewSet(viewsets.ModelViewSet):
             quantity = item['quantity']
             price = product.price * quantity
 
-            # Create an OrderItem and associate it with the order
             OrderItem.objects.create(
                 order=order,
                 product=product,
@@ -46,18 +46,14 @@ class OrderViewSet(viewsets.ModelViewSet):
                 price=price
             )
 
-            # Update the total amount
             total_amount += price
 
-        # Update the order total amount after all items have been added
         order.total_amount = total_amount
         order.save()
 
-        # Trigger Celery tasks for sending email and processing the order
         send_order_confirmation_email.delay(user.email, order.id)
         process_order.delay(order.id)
 
-        # Serialize the order and return the response
         serializer = self.get_serializer(order)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
