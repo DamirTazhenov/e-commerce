@@ -8,7 +8,6 @@ class UserProfile(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # Add more custom fields here
 
     def __str__(self):
         return self.user.username

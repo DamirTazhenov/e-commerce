@@ -7,7 +7,7 @@ from .models import Order
 from django.core.exceptions import ObjectDoesNotExist
 
 
-@shared_task
+@shared_task(queue='emails')
 def send_order_confirmation_email(user_email, order_id):
     try:
         order = Order.objects.select_related('user').prefetch_related('items__product').get(id=order_id)
@@ -38,7 +38,6 @@ def payment_gateway_process(order):
 def process_order(order_id):
     try:
         order = Order.objects.get(id=order_id)
-        # Example stock validation
         for item in order.items.all():
             product = item.product
             if product.stock_quantity < item.quantity:
@@ -46,12 +45,9 @@ def process_order(order_id):
             product.stock_quantity -= item.quantity
             product.save()
 
-        # Simulate payment processing
-        # In reality, this would involve calling a payment gateway
         if not payment_gateway_process(order):
             raise ValueError("Payment failed.")
 
-        # Order processed successfully
         order.order_status = 'Processed'
         order.save()
 

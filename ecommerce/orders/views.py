@@ -26,14 +26,11 @@ class OrderViewSet(viewsets.ModelViewSet):
         data = request.data
         total_amount = Decimal('0.00')
 
-        # Check if there are any items in the order
         if 'items' not in data or not data['items']:
             return Response({'error': 'No items in the order'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Create the order
         order = Order.objects.create(user=user, total_amount=0)
 
-        # Loop through each item in the order data
         for item in data['items']:
             product = get_object_or_404(Product, id=item['product_id'])
             quantity = item['quantity']

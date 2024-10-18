@@ -30,12 +30,10 @@ class Product(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        # Invalidate all cached product pages
         cache.delete_pattern('product_list_page_*')
 
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
-        # Invalidate all cached product pages
         cache.delete_pattern('product_list_page_*')
 
     class Meta:

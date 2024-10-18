@@ -27,7 +27,7 @@ services:
     depends_on:
       - db
     deploy:
-      replicas: 3  # Настроим 3 реплики для веб-приложения
+      replicas: 3
       restart_policy:
         condition: on-failure
     expose:
